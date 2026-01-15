@@ -1,0 +1,283 @@
+body {
+    font-family: system-ui;
+    padding: 20px;
+}
+
+input {
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+ul li {
+    list-style: none;
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+
+ul li:hover {
+    background: #eee;
+}
+
+.bill-wrapper {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.bill {
+    width: 80%;
+    border: 1px solid #000;
+    padding: 15px;
+}
+
+.buyer-line {
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.buyer-line input {
+    width: 200px;
+    border: none;
+    border-bottom: 1px solid #000;
+    outline: none;
+    font-weight: bold;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #000;
+    padding: 6px;
+    text-align: center;
+}
+
+.qty-controls {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.qty-controls input {
+    width: 50px;
+    text-align: center;
+}
+
+.qty-text {
+    display: none;
+}
+
+.remove-panel {
+    width: 20%;
+}
+
+.remove-btn {
+    display: block;
+    margin-bottom: 10px;
+    color: red;
+    cursor: pointer;
+}
+
+.actions {
+    margin-top: 15px;
+}
+
+/* ---------------- MOBILE FIXES ---------------- */
+@media (max-width: 768px) {
+
+    body {
+        padding: 10px;
+    }
+
+    .bill-wrapper {
+        flex-direction: column;
+    }
+
+    .bill {
+        width: 100%;
+    }
+
+    .remove-panel {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    input, button {
+        font-size: 16px;
+    }
+
+    .qty-controls button {
+        padding: 6px 10px;
+    }
+
+    .qty-controls input {
+        width: 60px;
+    }
+}
+
+/* ---------------- PRINT / PDF ---------------- */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .bill, .bill * {
+        visibility: visible;
+    }
+
+    .bill {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    .qty-controls button,
+    .qty-controls input,
+    .remove-panel,
+    .actions {
+        display: none;
+    }
+
+    .qty-text {
+        display: inline;
+        font-weight: bold;
+    }
+}
+.product-list {
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+}
+
+.product-list.collapsed {
+    max-height: 180px; /* approx 3 items */
+}
+
+.product-list.expanded {
+    max-height: 1000px;
+}
+
+.toggle-products {
+    text-align: center;
+    cursor: pointer;
+    font-weight: bold;
+    margin-bottom: 15px;
+    user-select: none;
+}
+.search-box {
+    position: relative;
+    width: 100%;
+}
+
+.search-box input {
+    width: 100%;
+    padding-right: 35px;
+}
+
+.clear-search {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 16px;
+    color: #888;
+    user-select: none;
+}
+
+.clear-search:hover {
+    color: #000;
+}
+h2 {
+    text-align: center;
+}
+
+.bill h3 {
+    text-align: center;
+}
+
+th, td {
+    text-align: center;
+}
+.product-list li {
+    padding: 12px;
+    font-size: 16px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.product-list li:active {
+    background: #f0f0f0;
+}
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    min-width: 500px;
+    border-collapse: collapse;
+}
+                  
+
+
+
+
+
+
+
+
+@media (max-width: 600px) {
+
+    table {
+        min-width: unset;
+    }
+
+    table thead {
+        display: none;
+    }
+
+    table tbody tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px 12px;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        background: #fff;
+    }
+
+    table tbody td {
+        padding: 0;
+        border: none;
+        font-size: 14px;
+    }
+
+    /* Positioning (same meaning as laptop) */
+    table tbody td:nth-child(1) {
+        grid-column: 1 / -1; /* Item full width */
+        font-weight: 600;
+    }
+
+    table tbody td:nth-child(2)::before {
+        content: "Qty: ";
+        font-weight: 500;
+    }
+
+    table tbody td:nth-child(3)::before {
+        content: "Price: ₹";
+        font-weight: 500;
+    }
+
+    table tbody td:nth-child(4)::before {
+        content: "Total: ₹";
+        font-weight: 600;
+    }
+}
+
