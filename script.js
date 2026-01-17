@@ -429,5 +429,3 @@ function toggleProducts() {
 
 renderProducts(products);
 
-
-

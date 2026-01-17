@@ -1,3 +1,5 @@
+
+
 body {
     font-family: system-ui;
     padding: 20px;
@@ -230,9 +232,6 @@ table {
 
 
 
-
-
-
 @media (max-width: 600px) {
     /* 1. This is the 'Magic' container that stops the merging */
     .table-wrapper {
@@ -289,9 +288,6 @@ table {
         padding: 4px 2px;
     }
 }
-
-
-
 
 
 
