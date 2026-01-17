@@ -232,52 +232,61 @@ table {
 
 
 
+
 @media (max-width: 600px) {
-
-    table {
-        min-width: unset;
-    }
-
-    table thead {
-        display: none;
-    }
-
-    table tbody tr {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 6px 12px;
-        padding: 10px;
-        margin-bottom: 10px;
+    /* 1. This is the 'Magic' container that stops the merging */
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto; /* Adds the swipe/scroll feature */
+        -webkit-overflow-scrolling: touch; /* Smooth scrolling for iPhone */
         border: 1px solid #ddd;
-        border-radius: 6px;
-        background: #fff;
+        margin-bottom: 10px;
     }
 
-    table tbody td {
-        padding: 0;
-        border: none;
+    /* 2. This forces the table to stay exactly like the laptop version */
+    table {
+        display: table !important; 
+        min-width: 500px; /* Forces it to be 500px wide even on a 360px phone */
+        border-collapse: collapse;
+    }
+
+    th, td {
+        display: table-cell !important;
+        padding: 10px 5px;
+        white-space: nowrap; /* Prevents text from wrapping to a second line */
         font-size: 14px;
+        text-align: center;
+        border: 1px solid #eee;
     }
 
-    /* Positioning (same meaning as laptop) */
-    table tbody td:nth-child(1) {
-        grid-column: 1 / -1; /* Item full width */
-        font-weight: 600;
+    /* 3. Make the buttons look like professional mobile buttons */
+    .actions button {
+        width: 100%;
+        padding: 15px;
+        font-size: 16px;
+        margin-top: 10px;
+        border-radius: 8px;
     }
+}
 
-    table tbody td:nth-child(2)::before {
-        content: "Qty: ";
-        font-weight: 500;
+
+
+
+
+
+
+
+
+
+
+
+@media (max-width: 600px) {
+    table {
+        min-width: 100% !important; /* Force it to fit the screen */
     }
-
-    table tbody td:nth-child(3)::before {
-        content: "Price: ₹";
-        font-weight: 500;
-    }
-
-    table tbody td:nth-child(4)::before {
-        content: "Total: ₹";
-        font-weight: 600;
+    th, td {
+        font-size: 11px; /* Very small text */
+        padding: 4px 2px;
     }
 }
 
