@@ -225,30 +225,42 @@ function resetBill() {
  * SEND ORDER → PACK & CHECK
  ************************************************/
 async function sendOrder() {
-    // 1. Get the Firebase functions we need
+    // Check if cart is empty before sending
+    if (cart.length === 0) {
+        alert("Cart is empty!");
+        return;
+    }
+
     const { collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
 
-    // 2. Prepare the order data
+    // FIX 1: Calculate the total correctly from the span or the running state
+    const currentTotal = document.getElementById('grandTotal').textContent;
+
     const orderData = {
-        billNo: document.getElementById('bill-no').innerText,
-        customer: document.getElementById('customer-name').value || "Guest",
+        billNo: billCounter.toString().padStart(4, '0'), // Uses your existing counter
+        customer: buyerNameInput.value || "Guest",
         items: cart,
-        total: grandTotal,
-        status: "pending", // So the packing screen knows it's new
-        time: serverTimestamp() // Uses Google's server time
+        total: currentTotal,
+        status: "pending", 
+        time: serverTimestamp() 
     };
 
     try {
-        // 3. Send to the "orders" collection in the cloud
         await addDoc(collection(window.db, "orders"), orderData);
-        alert("Order sent to Packing Screen!");
-        resetCart(); 
+        alert("Order sent to Cloud!");
+        
+        // Increment counter for next bill
+        billCounter++;
+        savePersistentState();
+        
+        // FIX 2: Use the correct function name to clear the UI
+        resetBill(); 
+        
     } catch (e) {
-        console.error("Error: ", e);
-        alert("Check internet connection!");
+        console.error("Firebase Error: ", e);
+        alert("Failed to send: " + e.message);
     }
 }
-
 /************************************************
  * PACK & CHECK
  ************************************************/
