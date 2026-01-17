@@ -1,3 +1,5 @@
+
+
 /************************************************
  * ELEMENT REFERENCES
  ************************************************/
@@ -224,43 +226,27 @@ function resetBill() {
 /************************************************
  * SEND ORDER → PACK & CHECK
  ************************************************/
-async function sendOrder() {
-    // Check if cart is empty before sending
+function sendOrder() {
     if (cart.length === 0) {
-        alert("Cart is empty!");
+        alert("Cart is empty");
         return;
     }
 
-    const { collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+    const billNo = String(billCounter++).padStart(4, "0");
 
-    // FIX 1: Calculate the total correctly from the span or the running state
-    const currentTotal = document.getElementById('grandTotal').textContent;
+    ordersForPacking.push({
+        billNo,
+        buyerName: buyerNameInput.value || "Unknown",
+        items: structuredClone(cart),
+        total: Number(grandTotalSpan.textContent)
+    });
 
-    const orderData = {
-        billNo: billCounter.toString().padStart(4, '0'), // Uses your existing counter
-        customer: buyerNameInput.value || "Guest",
-        items: cart,
-        total: currentTotal,
-        status: "pending", 
-        time: serverTimestamp() 
-    };
+    savePersistentState();
+    resetBill();
 
-    try {
-        await addDoc(collection(window.db, "orders"), orderData);
-        alert("Order sent to Cloud!");
-        
-        // Increment counter for next bill
-        billCounter++;
-        savePersistentState();
-        
-        // FIX 2: Use the correct function name to clear the UI
-        resetBill(); 
-        
-    } catch (e) {
-        console.error("Firebase Error: ", e);
-        alert("Failed to send: " + e.message);
-    }
+    alert(`Order ${billNo} sent to Pack & Check`);
 }
+
 /************************************************
  * PACK & CHECK
  ************************************************/
@@ -439,50 +425,9 @@ function toggleProducts() {
         toggle.textContent = "▼ Show more products";
     }
 }
-async function startGlobalSync() {
-    const { collection, query, onSnapshot, orderBy, doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
 
-    // Listen to ALL orders sorted by time
-    const q = query(collection(window.db, "orders"), orderBy("time", "desc"));
-
-    onSnapshot(q, (snapshot) => {
-        const packList = document.getElementById("pack-check-list");
-        const billingList = document.getElementById("final-billing-list");
-        
-        // Clear both lists before redrawing
-        if(packList) packList.innerHTML = "";
-        if(billingList) billingList.innerHTML = "";
-
-        snapshot.forEach((orderDoc) => {
-            const order = orderDoc.data();
-            const id = orderDoc.id;
-
-            if (order.status === "pending") {
-                // Add to Pack & Check section
-                packList.innerHTML += `
-                    <div class="order-card">
-                        <span>Bill #${order.billNo} - ${order.customer}</span>
-                        <button onclick="updateStatus('${id}', 'packed')">Mark Packed</button>
-                    </div>`;
-            } else if (order.status === "packed") {
-                // Add to Final Billing section
-                billingList.innerHTML += `
-                    <div class="order-card packed">
-                        <span>Bill #${order.billNo} - ${order.customer} (READY)</span>
-                        <button onclick="updateStatus('${id}', 'delivered')">Done</button>
-                    </div>`;
-            }
-        });
-    });
-}
-
-// Function to move orders between sections globally
-window.updateStatus = async (id, newStatus) => {
-    const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-    const orderRef = doc(window.db, "orders", id);
-    await updateDoc(orderRef, { status: newStatus });
-};
-
-startGlobalSync();
 
 renderProducts(products);
+
+
+
