@@ -224,25 +224,29 @@ function resetBill() {
 /************************************************
  * SEND ORDER → PACK & CHECK
  ************************************************/
-function sendOrder() {
-    if (cart.length === 0) {
-        alert("Cart is empty");
-        return;
+async function sendOrder() {
+    // 1. Get the Firebase functions we need
+    const { collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+
+    // 2. Prepare the order data
+    const orderData = {
+        billNo: document.getElementById('bill-no').innerText,
+        customer: document.getElementById('customer-name').value || "Guest",
+        items: cart,
+        total: grandTotal,
+        status: "pending", // So the packing screen knows it's new
+        time: serverTimestamp() // Uses Google's server time
+    };
+
+    try {
+        // 3. Send to the "orders" collection in the cloud
+        await addDoc(collection(window.db, "orders"), orderData);
+        alert("Order sent to Packing Screen!");
+        resetCart(); 
+    } catch (e) {
+        console.error("Error: ", e);
+        alert("Check internet connection!");
     }
-
-    const billNo = String(billCounter++).padStart(4, "0");
-
-    ordersForPacking.push({
-        billNo,
-        buyerName: buyerNameInput.value || "Unknown",
-        items: structuredClone(cart),
-        total: Number(grandTotalSpan.textContent)
-    });
-
-    savePersistentState();
-    resetBill();
-
-    alert(`Order ${billNo} sent to Pack & Check`);
 }
 
 /************************************************
@@ -423,6 +427,50 @@ function toggleProducts() {
         toggle.textContent = "▼ Show more products";
     }
 }
+async function startGlobalSync() {
+    const { collection, query, onSnapshot, orderBy, doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
 
+    // Listen to ALL orders sorted by time
+    const q = query(collection(window.db, "orders"), orderBy("time", "desc"));
+
+    onSnapshot(q, (snapshot) => {
+        const packList = document.getElementById("pack-check-list");
+        const billingList = document.getElementById("final-billing-list");
+        
+        // Clear both lists before redrawing
+        if(packList) packList.innerHTML = "";
+        if(billingList) billingList.innerHTML = "";
+
+        snapshot.forEach((orderDoc) => {
+            const order = orderDoc.data();
+            const id = orderDoc.id;
+
+            if (order.status === "pending") {
+                // Add to Pack & Check section
+                packList.innerHTML += `
+                    <div class="order-card">
+                        <span>Bill #${order.billNo} - ${order.customer}</span>
+                        <button onclick="updateStatus('${id}', 'packed')">Mark Packed</button>
+                    </div>`;
+            } else if (order.status === "packed") {
+                // Add to Final Billing section
+                billingList.innerHTML += `
+                    <div class="order-card packed">
+                        <span>Bill #${order.billNo} - ${order.customer} (READY)</span>
+                        <button onclick="updateStatus('${id}', 'delivered')">Done</button>
+                    </div>`;
+            }
+        });
+    });
+}
+
+// Function to move orders between sections globally
+window.updateStatus = async (id, newStatus) => {
+    const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+    const orderRef = doc(window.db, "orders", id);
+    await updateDoc(orderRef, { status: newStatus });
+};
+
+startGlobalSync();
 
 renderProducts(products);
